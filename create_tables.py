@@ -51,7 +51,7 @@ Connect redshift and return redshift database cursor
     drop_tables(cur, conn)
     create_tables(cur, conn)
 """
-Execused declared above functions
+Excused declared above functions
 """
     
     conn.close()
