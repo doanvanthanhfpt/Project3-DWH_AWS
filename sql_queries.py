@@ -10,60 +10,59 @@ config.read('dwh.cfg')
 staging_events_table_drop = "DROP TABLE IF EXISTS staging_events;"
 staging_songs_table_drop = "DROP TABLE IF EXISTS staging_songs;"
 songplay_table_drop = "DROP TABLE IF EXISTS songplay;"
-user_table_drop = "DROP TABLE IF EXISTS user;"
-song_table_drop = "DROP TABLE IF EXISTS song;"
-artist_table_drop = "DROP TABLE IF EXISTS artist;"
+user_table_drop = "DROP TABLE IF EXISTS users;"
+song_table_drop = "DROP TABLE IF EXISTS songs;"
+artist_table_drop = "DROP TABLE IF EXISTS artists;"
 time_table_drop = "DROP TABLE IF EXISTS time;"
 
 # CREATE TABLES
 
+# Staging tables
 staging_events_table_create= ("""
     CREATE TABLE IF NOT EXISTS staging_events
         (
-            event_id INT IDENTITY(0,1),
-            artist_name VARCHAR(255),
-            auth VARCHAR(50),
-            user_first_name VARCHAR(255),
-            user_gender  VARCHAR(1),
-            item_in_session	INTEGER,
-            user_last_name VARCHAR(255),
-            song_length	DOUBLE PRECISION, 
-            user_level VARCHAR(50),
-            location VARCHAR(255),	
-            method VARCHAR(25),
-            page VARCHAR(35),	
-            registration VARCHAR(50),	
-            session_id	BIGINT,
-            song_title VARCHAR(255),
-            status INTEGER,	
-            ts VARCHAR(50),
-            user_agent TEXT,	
-            user_id VARCHAR(100),
-            PRIMARY KEY (event_id)
+            artist varchar,
+            auth varchar,
+            firstName varchar,
+            gender varchar,
+            itemInSession int,
+            lastName varchar,
+            length float,
+            level varchar,
+            location varchar,
+            method varchar,
+            page varchar,
+            registration float,
+            sessionId int,
+            song varchar,
+            status int,
+            ts varchar,
+            userAgent varchar,
+            userId int
         );
 """)
 
 staging_songs_table_create = ("""
     CREATE TABLE IF NOT EXISTS staging_songs
         (
-            song_id VARCHAR(100),
-            num_songs INTEGER,
-            artist_id VARCHAR(100),
-            artist_latitude DOUBLE PRECISION,
-            artist_longitude DOUBLE PRECISION,
-            artist_location VARCHAR(255),
-            artist_name VARCHAR(255),
-            title VARCHAR(255),
-            duration DOUBLE PRECISION,
-            year INTEGER,
-            PRIMARY KEY (song_id)
+            num_songs int,
+            artist_id varchar,
+            artist_latitude varchar,
+            artist_longitude varchar,
+            artist_location varchar,
+            artist_name varchar,
+            song_id varchar,
+            title varchar,
+            duration float,
+            year int
         );
 """)
 
+# Fact table
 songplay_table_create = ("""
     CREATE TABLE IF NOT EXISTS songplay
         (
-        songplay_id SERIAL PRIMARY KEY, 
+        songplay_id INT PRIMARY KEY, 
         start_time TIMESTAMP NOT NULL, 
         user_id INT NOT NULL, 
         level VARCHAR, 
@@ -75,6 +74,7 @@ songplay_table_create = ("""
         );
 """)
 
+# Dimension tables
 user_table_create = ("""
     CREATE TABLE IF NOT EXISTS users 
         (
@@ -124,11 +124,29 @@ time_table_create = ("""
 # STAGING TABLES
 
 staging_events_copy = ("""
-""").format()
+    COPY staging_events from '{}'
+    CREDENTIALS 'aws_iam_role={}'
+    REGION 'us-west-2'
+    COMPUDATE OFF
+    JSON '{}';
+""").format(
+        config.get('S3','LOG_DATA'),
+        config.get('IAM_ROLE','ARN'),
+        config.get('S3','LOG_JSONPATH')
+        )
 
 staging_songs_copy = ("""
-""").format()
+    COPY staging_songs from '{}'
+    CREDENTIALS 'aws_iam_role={}'
+    REGION 'us-west-2'
+    COMPUDATE OFF
+    JSON 'auto';
+""").format(
+        config.get("S3","SONG_DATA"),
+        config.get("IAM_ROLE","ARN")
+        )
 
+# config.get('AWS','KEY')
 # FINAL TABLES
 
 songplay_table_insert = ("""
@@ -142,8 +160,17 @@ songplay_table_insert = ("""
                                  session_id, 
                                  location, 
                                  user_agent) 
-                         VALUES(%s,%s,%s,%s,%s,%s,%s,%s)
-                         ON CONFLICT DO NOTHING;
+                         SELECT st_event.ts AS start_time,
+                                 st_event.userId AS user_id,
+                                 st_event.level AS level,
+                                 st_song.song_id AS song_id,
+                                 st_song.artist_id AS artist_id,
+                                 st_event.session_id AS session_id,
+                                 st_event.location AS location,
+                                 st_event.user_agent AS user_agent
+                         FROM staging_events AS st_event
+                         JOIN staging_songs AS st_song ON (st_event.artist = st_song.artist_name)
+                         WHERE st_event.page = 'NextSong';
                          """)
 
 user_table_insert = ("""
@@ -154,9 +181,13 @@ user_table_insert = ("""
                             last_name, 
                             gender, 
                             level) 
-                    VALUES(%s,%s,%s,%s,%s) 
-                    ON CONFLICT(user_id) 
-                    DO UPDATE SET level = EXCLUDED.level;
+                    SELECT st_event.user_id AS user_id,
+                            st_event.first_name AS first_name,
+                            st_event.last_name AS last_name,
+                            st_event.gender AS gender,
+                            st_event.level AS level
+                         FROM staging_events AS st_event
+                         WHERE st_event.page = 'NextSong';
                     """)
 
 song_table_insert = ("""
@@ -167,9 +198,12 @@ song_table_insert = ("""
                             artist_id, 
                             year, 
                             duration)
-                    VALUES(%s,%s,%s,%s,%s) 
-                    ON CONFLICT(song_id) 
-                    DO NOTHING;
+                    SELECT st_song.song_id AS song_id,
+                            st_song.title AS title,
+                            st_song.artist_id AS artist_id,
+                            st_song.year AS year,
+                            st_song.duration AS duration
+                         FROM staging_songs AS st_song;
                     """)
 
 artist_table_insert = ("""
@@ -180,9 +214,12 @@ artist_table_insert = ("""
                                location, 
                                latitude, 
                                longitude) 
-                       VALUES(%s,%s,%s,%s,%s) 
-                       ON CONFLICT(artist_id) 
-                       DO NOTHING;
+                    SELECT st_song.artist_id AS artist_id,
+                            st_song.name AS name,
+                            st_song.location AS location,
+                            st_song.latitude AS latitude,
+                            st_song.longitude AS longitude
+                         FROM staging_songs AS st_song;
                        """)
 
 time_table_insert = ("""
@@ -195,9 +232,16 @@ time_table_insert = ("""
                              month, 
                              year, 
                              weekday) 
-                     VALUES(%s,%s,%s,%s,%s,%s,%s) 
-                     ON CONFLICT DO NOTHING;
-                     """)
+                    SELECT DISTINCT timestamp 'epoch' + st_event.ts/1000 * interval '1 second' AS start_time,
+                            extract(HOUR FROM st_event.timestamp) AS hour,
+                            extract(DAY FROM st_event.timestamp) AS day,
+                            extract(WEEK FROM st_event.timestamp) AS week,
+                            extract(MONTH FROM st_event.timestamp) AS month,
+                            extract(YEAR FROM st_event.timestamp) as year,
+                            extract(WEEK FROM st_event.timestamp) as weekday
+                    FROM staging_events AS st_event
+                    WHERE st_event.page = 'NextSong';
+                    """)
 
 # QUERY LISTS
 
