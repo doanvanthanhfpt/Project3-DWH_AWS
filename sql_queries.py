@@ -36,7 +36,7 @@ staging_events_table_create= ("""
             sessionId int,
             song varchar,
             status int,
-            ts varchar,
+            ts timestamp,
             userAgent varchar,
             userId int
         );
