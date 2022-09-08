@@ -125,9 +125,9 @@ time_table_create = ("""
 
 staging_events_copy = ("""
     COPY staging_events from '{}'
-    CREDENTIALS 'aws_iam_role={}'
+    IAM_ROLE '{}'
     REGION 'us-west-2'
-    COMPUDATE OFF
+    COMPUPDATE OFF
     JSON '{}';
 """).format(
         config.get('S3','LOG_DATA'),
@@ -137,9 +137,9 @@ staging_events_copy = ("""
 
 staging_songs_copy = ("""
     COPY staging_songs from '{}'
-    CREDENTIALS 'aws_iam_role={}'
+    IAM_ROLE '{}'
     REGION 'us-west-2'
-    COMPUDATE OFF
+    COMPUPDATE OFF
     JSON 'auto';
 """).format(
         config.get("S3","SONG_DATA"),
