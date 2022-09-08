@@ -22,7 +22,6 @@ def main():
     #conn = psycopg2.connect(host=HOST,dbname=DB_NAME, user=DB_USER, password=DB_PASSWORD, port=DB_PORT)
     #conn = psycopg2.connect("host=dwhHost dbname=dwh user=dwhuser password=Passw0rd port=5439")
     conn = psycopg2.connect("host=redshift-cluster-3.cknnnnpyxyzp.us-west-2.redshift.amazonaws.com dbname=dwh user=dwhuser password=Passw0rd port=5439")
-      
     cur = conn.cursor()
     
     drop_tables(cur, conn)
