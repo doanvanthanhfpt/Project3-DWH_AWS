@@ -78,13 +78,16 @@ From command GUI, run ***etl.py*** with command:
 
     SELECT COUNT(*) FROM staging_songs;
 
-- Count number of fact table records. Result should be 319
+- Count number of fact table records. Result should be 319.
+
     SELECT COUNT(*) FROM songplay;
 
-- Count number of dimension table records of ***users***. Result should be 6820
+- Count number of dimension table records of ***users***. Result should be 6820.
+
     SELECT COUNT(*) FROM users;
 
-- Count number of ***songplay_id*** NULL. Result should be 0
+- Count number of ***songplay_id*** NULL. Result should be 0.
+
     SELECT COUNT(*) FROM songplay
     WHERE songplay_id = NULL;
 
