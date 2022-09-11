@@ -31,7 +31,7 @@ Database schema includes the following fact and dimension tables:
 ## Prerequisites
 - Chrome browser Version 105.0.5195.102 (Official Build) or newer.
 - Jupyter launching from Anacoda3 installed.
-- Python 3.10 with corresponding modules configparser, psycopg2, pandas, boto3, json installed on local machine.
+- Python 3.9.7 with corresponding modules configparser, psycopg2, pandas, boto3, json installed on local machine.
 - Visual Studio Code Version 1.71.0 or newer with python, jupyter extensions installed.
 - AWS root account (or another account with the same privilege).
 - Git version 2.25.1
