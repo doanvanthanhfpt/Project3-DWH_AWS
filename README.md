@@ -26,6 +26,7 @@ Database schema includes the following fact and dimension tables:
     - staging_events: artist, auth , firstName , gender , itemInSession, lastName , length, level , location , method , page , registration, sessionId, song , status, ts, userAgent , userId
     - staging_songs: num_songs, artist_id, artist_latitude, artist_longitude, artist_location, artist_name, song_id, title, duration, year
 
+![alt text]https://github.com/doanvanthanhfpt/Project3-DWH_AWS/blob/main/Sparkify_DataAnalysis-DB_schema_small.png
 
 ## Prerequisites
 - Chrome browser Version 105.0.5195.102 (Official Build) or newer.
