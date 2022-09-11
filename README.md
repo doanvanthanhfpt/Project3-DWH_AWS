@@ -56,12 +56,14 @@ Note: keep command GUI for next steps.
 ## Step 2: Create Redshift cluster with Infrastructure as Code (IaC) script
 From command GUI, run ***aws_redshift-IaC.ipynb*** Jupyter notebook step by step to check the outputs.
 
-Importance note: When redshift-cluster display status ***Available***, update config file ***HOST*** value with ***DWH_ENDPOINT*** value.
+Importance note: 
+    - When redshift-cluster display status ***Available***, update config file ***HOST*** value with ***DWH_ENDPOINT*** value.
+    - Stop running IaC after **Step 4: Verify cluster connected**
 
 ## Step 3: Create database schema, tables and get data from S3 to Redshift DB
 From command GUI, run ***create_tables.py*** with command:
     >***python create_tables.py***
-
+ 
 ## Step 4: Test by  running the analytic queries on Redshift database
 From command GUI, run ***etl.py*** with command:
     >***python etl.py***
@@ -83,3 +85,8 @@ SELECT COUNT(*) FROM users;
 - Count number of ***songplay_id*** NULL. Result should be 0
 SELECT COUNT(*) FROM songplay
 WHERE songplay_id = NULL;
+
+## Delete Redshift cluster to aviod unexpectation fee
+Run ***aws_redshift-IaC.ipynb*** Jupyter notebook from **### Step 5: Clean up resource** to the end of IaC.
+
+## End of documentations
