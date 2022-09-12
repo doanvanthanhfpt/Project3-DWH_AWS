@@ -62,7 +62,7 @@ staging_songs_table_create = ("""
 songplay_table_create = ("""
     CREATE TABLE IF NOT EXISTS 
         songplay (
-            songplay_id TEXT, 
+            songplay_id INT IDENTITY(0,1), 
             start_time TIMESTAMP NOT NULL, 
             user_id BIGINT NOT NULL, 
             level VARCHAR, 
@@ -176,7 +176,7 @@ songplay_table_insert = ("""
     ON st_event.song = st_song.title
     AND st_event.artist = st_song.artist_name
     AND st_event.length = st_song.duration
-    AND st_event.page = 'NextSong';
+    WHERE st_event.page = 'NextSong';
 """)
 
 user_table_insert = ("""
@@ -187,7 +187,7 @@ user_table_insert = ("""
             last_name, 
             gender, 
             level) 
-    SELECT 
+    SELECT DISTINCT
         st_event.userId AS user_id,
         st_event.firstName AS first_name,
         st_event.lastName AS last_name,
@@ -207,7 +207,7 @@ song_table_insert = ("""
             artist_id, 
             year, 
             duration)
-    SELECT 
+    SELECT DISTINCT
         st_song.song_id AS song_id,
         st_song.title AS title,
         st_song.artist_id AS artist_id,
@@ -225,7 +225,7 @@ artist_table_insert = ("""
             location, 
             latitude, 
             longitude) 
-    SELECT 
+    SELECT DISTINCT
         st_song.artist_id AS artist_id,
         st_song.title AS name,
         st_song.artist_location AS location,

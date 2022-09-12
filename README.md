@@ -72,9 +72,10 @@ From command GUI, run ***etl.py*** with command:
 ## Example queries and results for song analysis
 - Count number of staging tables: 
     Result of ***staging_events*** should be 8056
-    Result of ***staging_songs*** should be 14896
-
+    
     SELECT COUNT(*) FROM staging_events;
+
+    Result of ***staging_songs*** should be 14896
 
     SELECT COUNT(*) FROM staging_songs;
 
@@ -82,7 +83,7 @@ From command GUI, run ***etl.py*** with command:
 
     SELECT COUNT(*) FROM songplay;
 
-- Count number of dimension table records of ***users***. Result should be 6820.
+- Count number of dimension table records of ***users***. Result should be 104.
 
     SELECT COUNT(*) FROM users;
 
