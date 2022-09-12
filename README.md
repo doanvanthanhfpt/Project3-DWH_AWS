@@ -92,6 +92,10 @@ From command GUI, run ***etl.py*** with command:
     SELECT COUNT(*) FROM songplay
     WHERE songplay_id = NULL;
 
+- Query to test for duplicate users.
+
+    SELECT user_id, COUNT(*) as count FROM users GROUP BY user_id ORDER BY count DESC;
+
 ## Delete Redshift cluster to aviod unexpectation fee
 Run ***aws_redshift-IaC.ipynb*** Jupyter notebook from **### Step 5: Clean up resource** to the end of IaC.
 

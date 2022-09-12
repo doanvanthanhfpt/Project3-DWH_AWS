@@ -62,7 +62,7 @@ staging_songs_table_create = ("""
 songplay_table_create = ("""
     CREATE TABLE IF NOT EXISTS 
         songplay (
-            songplay_id INT IDENTITY(0,1), 
+            songplay_id INT IDENTITY(0,1) PRIMARY KEY, 
             start_time TIMESTAMP NOT NULL, 
             user_id BIGINT NOT NULL, 
             level VARCHAR, 
