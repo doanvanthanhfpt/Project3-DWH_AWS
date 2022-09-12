@@ -180,16 +180,23 @@ songplay_table_insert = ("""
 """)
 
 user_table_insert = ("""
-    INSERT INTO users(user_id, first_name, last_name, gender, level)
-    WITH uniq_staging_events AS (
-                                SELECT userId, firstName, lastName, gender, level,
-                                    ROW_NUMBER() OVER(PARTITION BY userId ORDER BY ts DESC) AS rank
-                                FROM staging_events
-                                WHERE userId IS NOT NULL
-    )
-    SELECT userId, firstName, lastName, gender, level
-    FROM uniq_staging_events
-    WHERE rank = 1;
+    INSERT INTO 
+        users (
+            user_id, 
+            first_name, 
+            last_name, 
+            gender, 
+            level) 
+    SELECT DISTINCT
+        st_event.userId AS user_id,
+        st_event.firstName AS first_name,
+        st_event.lastName AS last_name,
+        st_event.gender AS gender,
+        st_event.level AS level
+    FROM 
+        staging_events AS st_event
+    WHERE 
+        st_event.page = 'NextSong';
 """)
 
 song_table_insert = ("""
